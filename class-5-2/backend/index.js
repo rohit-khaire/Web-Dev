@@ -1,15 +1,29 @@
 const {createTodo, updateTodo} = require("./types.js")
 const express = require("express");
+const fs = require("fs");  // Instead of DB, using File System
 
+const FILE = "todos.json";
 const server = express();
 
 server.use(express.json());
 
-server.get("/todo", (req,res)=>{
+// Read todos
+function readTodos() {
+  if (!fs.existsSync(FILE)) return [];
+  return JSON.parse(fs.readFileSync(FILE, "utf8"));
+}
 
+// Write todos
+function writeTodos(todos) {
+  fs.writeFileSync(FILE, JSON.stringify(todos, null, 2));
+}
+
+server.get("/todo", (req,res)=>{
+    res.json(readTodos());
 })
 
-server.post("/todo", async (req,res)=>{
+
+server.post("/todo", (req,res)=>{  //If DB used, then can use async/await
     const createPayload = req.body;
     const parsedPayload = createTodo.safeParse(createPayload);
     if(!parsedPayload.success){
@@ -18,14 +32,24 @@ server.post("/todo", async (req,res)=>{
         })
         return;
     }
-    //put it in mongodb
+    //put it in mongodb, using fs here
+    const todos = readTodos();
+    const newTodo = {
+        id: Date.now().toString(),
+        ...req.body,
+        completed: false,
+    };
+
+    todos.push(newTodo);
+    writeTodos(todos);
 
     res.json({
         msg: "Todo created"
     })
 })
 
-server.put("/completed", async (req,res)=>{
+
+server.put("/completed", (req,res)=>{
     const updatePayload = req.body;
     const parsedPayload = updateTodo.safeParse(updatePayload);
     if(!parsedPayload.success){
@@ -34,4 +58,19 @@ server.put("/completed", async (req,res)=>{
         })
         return;
     }
+
+    //mark it as completed
+    const todos = readTodos();
+    const todo = todos.find((t) => t.id === req.body.id);
+    if (!todo) return res.status(404).json({ msg: "Todo not found" });
+
+    todo.completed = true;
+    writeTodos(todos);
+
+    res.json({
+        msg: "Todo marked as completed"
+    })
 })
+
+
+server.listen(3000);
