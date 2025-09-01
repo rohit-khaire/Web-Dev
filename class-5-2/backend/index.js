@@ -1,11 +1,13 @@
 const {createTodo, updateTodo} = require("./types.js")
 const express = require("express");
 const fs = require("fs");  // Instead of DB, using File System
+const cors = require("cors");
 
 const FILE = "todos.json";
 const server = express();
 
 server.use(express.json());
+server.use(cors());
 
 // Read todos
 function readTodos() {
@@ -18,12 +20,12 @@ function writeTodos(todos) {
   fs.writeFileSync(FILE, JSON.stringify(todos, null, 2));
 }
 
-server.get("/todo", (req,res)=>{
+server.get("/todos", (req,res)=>{
     res.json(readTodos());
 })
 
 
-server.post("/todo", (req,res)=>{  //If DB used, then can use async/await
+server.post("/todos", (req,res)=>{  //If DB used, then can use async/await
     const createPayload = req.body;
     const parsedPayload = createTodo.safeParse(createPayload);
     if(!parsedPayload.success){

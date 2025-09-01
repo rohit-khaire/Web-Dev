@@ -1,0 +1,10 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "title": "GYM",
+      "desc": "Go to GYM",
+      "completed": false
+    }
+  ]
+}
