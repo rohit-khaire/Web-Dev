@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 // import './App.css'
@@ -7,12 +7,12 @@ import { useEffect, useState } from 'react'
 function App() {
   return (
     <div>
-      <Todo id={5} />
+      <Todo id={2} />
     </div>
   )
 }
 
-function Todo({id}){
+const Todo = React.memo(({id})=>{
   const [todo, setTodo] = useState({})
 
   useEffect(function(){
@@ -32,6 +32,6 @@ function Todo({id}){
     <h3>User ID: {todo.userId}</h3>
   </div>
   )
-}
+})
 
 export default App
